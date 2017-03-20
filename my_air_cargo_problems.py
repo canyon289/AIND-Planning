@@ -8,6 +8,9 @@ from lp_utils import (
     FluentState, encode_state, decode_state,
 )
 from my_planning_graph import PlanningGraph
+from itertools import product
+
+import example_have_cake
 
 
 class AirCargoProblem(Problem):
@@ -58,7 +61,19 @@ class AirCargoProblem(Problem):
             :return: list of Action objects
             '''
             loads = []
-            # TODO create all load ground actions from the domain Load action
+
+            # Get all combinations of cargo, airports, and planes
+            for cargo, plane, airport in product(self.cargos, self.planes, self.airports):
+                precond_pos = [expr(f"At({cargo}, {airport})"), expr(f"At({plane}, {airport})")]
+                precond_neg = []
+
+                effect_add = [expr(f"In({cargo}, {plane})")]
+                effect_rem = [expr(f"At({cargo}, {airport})")]
+
+                load = Action(expr(f"Load({cargo}, {plane}, {airport})"),
+                             [precond_pos, precond_neg],
+                             [effect_add, effect_rem])
+                loads.append(load)
             return loads
 
         def unload_actions():
@@ -66,8 +81,20 @@ class AirCargoProblem(Problem):
 
             :return: list of Action objects
             '''
+
             unloads = []
-            # TODO create all Unload ground actions from the domain Unload action
+            for cargo, plane, airport in product(self.cargos, self.planes, self.airports):
+                precond_pos = [expr(f"In({cargo}, {plane})"), expr(f"At({plane}, {airport})")]
+                precond_neg = []
+
+                effect_add = [expr(f"At({cargo}, {airport})")]
+                effect_rem = [expr(f"In({cargo}, {plane})")]
+
+                unload = Action(expr(f"Unload({cargo}, {plane}, {airport})"),
+                              [precond_pos, precond_neg],
+                              [effect_add, effect_rem])
+
+                unloads.append(unload)
             return unloads
 
         def fly_actions():
@@ -101,9 +128,7 @@ class AirCargoProblem(Problem):
             e.g. 'FTTTFF'
         :return: list of Action objects
         """
-        # TODO implement
-        possible_actions = []
-        return possible_actions
+        return example_have_cake.HaveCakeProblem.actions(self, state)
 
     def result(self, state: str, action: Action):
         """ Return the state that results from executing the given
@@ -116,6 +141,19 @@ class AirCargoProblem(Problem):
         """
         # TODO implement
         new_state = FluentState([], [])
+        old_state = decode_state(state, self.state_map)
+        for fluent in old_state.pos:
+            if fluent not in action.effect_rem:
+                new_state.pos.append(fluent)
+        for fluent in action.effect_add:
+            if fluent not in new_state.pos:
+                new_state.pos.append(fluent)
+        for fluent in old_state.neg:
+            if fluent not in action.effect_add:
+                new_state.neg.append(fluent)
+        for fluent in action.effect_rem:
+            if fluent not in new_state.neg:
+                new_state.neg.append(fluent)
         return encode_state(new_state, self.state_map)
 
     def goal_test(self, state: str) -> bool:
