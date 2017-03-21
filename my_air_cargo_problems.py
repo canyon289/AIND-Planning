@@ -195,6 +195,13 @@ class AirCargoProblem(Problem):
         '''
         # TODO implement (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
         count = 0
+        # For each state possible
+        for index, state in enumerate(self.state_map):
+            # If the state is false and the state is in the goal
+            if node.state[index] == 'F' and state in self.goal:
+                # Then by this heuristic one additional action is needed to achieve the goal
+                count += 1
+
         return count
 
 
