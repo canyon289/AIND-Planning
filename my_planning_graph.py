@@ -551,7 +551,22 @@ class PlanningGraph():
         :param node_s2: PgNode_s
         :return: bool
         '''
-        # TODO test for Inconsistent Support between nodes
+        """
+        For each action in the parents if there is no common action that can achieve both
+        then they have inconsistent support
+        """
+        mutex = []
+        for parent_action_s1 in node_s1.parents:
+            for parent_action_s2 in node_s2.parents:
+                # Check to see which actions are mutex with each other
+                mutex.append(parent_action_s1.is_mutex(parent_action_s2))
+
+        """
+        If every parent is mutex with the other, in other words if the entire list is false,
+        then the parents are mutex, but if even just one is true then the s literals are not mutex
+        """
+        if all(mutex):
+            return True
         return False
 
     def h_levelsum(self) -> int:
