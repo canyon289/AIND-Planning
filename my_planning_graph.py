@@ -526,7 +526,13 @@ class PlanningGraph():
         :param node_s2: PgNode_s
         :return: bool
         '''
-        # TODO test for negation between nodes
+        """
+        If node_s1 and node_s2 are the same literal symbol, but if they're negations of each other
+        then they can' exist at the same time. Otherwise they are different literals and it doesn't
+        matter what their signs are
+        """
+        if node_s1.symbol == node_s2.symbol and node_s1.is_pos != node_s2.is_pos:
+            return True
         return False
 
     def inconsistent_support_mutex(self, node_s1: PgNode_s, node_s2: PgNode_s):
