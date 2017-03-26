@@ -456,7 +456,20 @@ class PlanningGraph():
         :param node_a2: PgNode_a
         :return: bool
         '''
-        # TODO test for Interference between nodes
+        for right_action, left_action in itertools.permutations((node_a1, node_a2)):
+            """
+            Check if any of the removed effects for taking the right action
+            are a needed precondition for the left action
+            """
+            if set(right_action.action.effect_rem) & set(left_action.action.precond_pos):
+                return True
+
+            """
+            Check if any of the added effects for taking the right action
+            are a negative precondition for the left action
+            """
+            if set(right_action.action.effect_add) & set(left_action.action.precond_neg):
+                return True
         return False
 
     def competing_needs_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
@@ -470,7 +483,15 @@ class PlanningGraph():
         :return: bool
         '''
 
-        # TODO test for Competing Needs between nodes
+        """
+        Check if any of the parents between the two nodes are mutex. This is important because
+        even if the preconditions states definitions are not mutually exclusive the states
+        themselves may be mutually exclusive, so just checking whether they don't directly
+        conflict in their literal name is not enough
+        """
+        for parent_a1 in node_a1.parents:
+            for parent_a2 in node_a2.parents:
+                return parent_a1.is_mutex(parent_a2)
         return False
 
     def update_s_mutex(self, nodeset: set):
