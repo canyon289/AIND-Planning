@@ -2,6 +2,7 @@ from aimacode.planning import Action
 from aimacode.search import Problem
 from aimacode.utils import expr
 from lp_utils import decode_state
+import itertools
 
 
 class PgNode():
@@ -431,7 +432,14 @@ class PlanningGraph():
         :param node_a2: PgNode_a
         :return: bool
         '''
-        # TODO test for Inconsistent Effects between nodes
+        """
+        Inconsistent events are when two action nodes add, or remove, a state from a state level
+        that is opposite
+        """
+        for right_action, left_action in itertools.permutations((node_a1, node_a2)):
+            # Test if there is a set intersection between the added and removed states
+            if len(set(right_action.action.effect_add) & set(left_action.action.effect_rem)) > 0:
+                return True
         return False
 
     def interference_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
