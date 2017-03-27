@@ -576,21 +576,12 @@ class PlanningGraph():
         '''
         level_sum = 0
 
-        # See how many goals are left
-        goals_left = set(self.problem.goal)
-
-        for level_int, s_level in enumerate(self.s_levels):
-            # For each level see what literals are present
-            literals_at_this_level = set([node.literal for node in s_level])
-
-            # If any of the goals left are prsent at this level
-            if len(goals_left & literals_at_this_level) > 0:
-                # Add the level to the level_sum cost
-                level_sum += level_int
-                # And remove those goals from the goals left. In this case were using
-                # sets to do it easily for us
-                goals_left -= literals_at_this_level
-
-                # If there are no more goals return the cost and end this function
-                if len(goals_left) == 0:
-                    return level_sum
+        # For each goal
+        for goal in self.problem.goal:
+            for level_int, level in enumerate(self.s_levels):
+                literals = [state.literal for state in level]
+                # If the goal is in the literal add the level cost
+                if goal in literals:
+                    level_sum += level_int
+                    break
+        return level_sum
