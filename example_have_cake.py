@@ -10,7 +10,6 @@ from lp_utils import (
     FluentState, encode_state, decode_state
 )
 from my_planning_graph import PlanningGraph
-from run_search import run_search
 
 
 class HaveCakeProblem(Problem):
@@ -113,6 +112,7 @@ def have_cake():
 
 
 if __name__ == '__main__':
+    from run_search import run_search
     p = have_cake()
     print("**** Have Cake example problem setup ****")
     print("Initial state for this problem is {}".format(p.initial))
