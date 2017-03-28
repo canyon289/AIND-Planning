@@ -3,6 +3,7 @@ from aimacode.search import Problem
 from aimacode.utils import expr
 from lp_utils import decode_state
 import itertools
+import ipdb
 
 
 class PgNode():
